@@ -53,7 +53,7 @@ struct WebSliderRelayEvents
             if (dynObj == nullptr)
                 return std::nullopt;
 
-            const auto eventTypeProp = dynObj->getProperty (eventTypeKey);
+            const auto eventTypeProp = dynObj->getProperty (eventTypeKey());
 
             if (! eventTypeProp.isString())
                 return std::nullopt;
@@ -61,7 +61,7 @@ struct WebSliderRelayEvents
             return Event { eventTypeProp.toString(), dynObj };
         }
 
-        static inline const Identifier eventTypeKey { "eventType" };
+        static const Identifier& eventTypeKey() { static const Identifier id { "eventType" }; return id; }
     };
 
     struct ValueChanged
@@ -70,10 +70,10 @@ struct WebSliderRelayEvents
 
         static std::optional<ValueChanged> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
-            const auto newValue = event.object->getProperty (newValueKey);
+            const auto newValue = event.object->getProperty (newValueKey());
 
             if (! (newValue.isInt() || newValue.isInt64() || newValue.isDouble()))
                 return std::nullopt;
@@ -81,47 +81,47 @@ struct WebSliderRelayEvents
             return ValueChanged { (float) newValue };
         }
 
-        static inline const Identifier eventId { "valueChanged" };
-        static inline const Identifier newValueKey { "value" };
+        static const Identifier& eventId() { static const Identifier id { "valueChanged" }; return id; }
+        static const Identifier& newValueKey() { static const Identifier id { "value" }; return id; }
     };
 
     struct SliderDragStarted
     {
         static std::optional<SliderDragStarted> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
             return SliderDragStarted{};
         }
 
-        static inline const Identifier eventId { "sliderDragStarted" };
+        static const Identifier& eventId() { static const Identifier id { "sliderDragStarted" }; return id; }
     };
 
     struct SliderDragEnded
     {
         static std::optional<SliderDragEnded> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
             return SliderDragEnded{};
         }
 
-        static inline const Identifier eventId { "sliderDragEnded" };
+        static const Identifier& eventId() { static const Identifier id { "sliderDragEnded" }; return id; }
     };
 
     struct InitialUpdateRequested
     {
         static std::optional<InitialUpdateRequested> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
             return InitialUpdateRequested{};
         }
 
-        static inline const Identifier eventId { "requestInitialUpdate" };
+        static const Identifier& eventId() { static const Identifier id { "requestInitialUpdate" }; return id; }
     };
 };
 
@@ -142,7 +142,7 @@ struct WebToggleButtonRelayEvents
             if (dynObj == nullptr)
                 return std::nullopt;
 
-            const auto eventTypeProp = dynObj->getProperty (eventTypeKey);
+            const auto eventTypeProp = dynObj->getProperty (eventTypeKey());
 
             if (! eventTypeProp.isString())
                 return std::nullopt;
@@ -150,7 +150,7 @@ struct WebToggleButtonRelayEvents
             return Event { eventTypeProp.toString(), dynObj };
         }
 
-        static inline const Identifier eventTypeKey { "eventType" };
+        static const Identifier& eventTypeKey() { static const Identifier id { "eventType" }; return id; }
     };
 
     struct ToggleStateChanged
@@ -159,10 +159,10 @@ struct WebToggleButtonRelayEvents
 
         static std::optional<ToggleStateChanged> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
-            const auto newState = event.object->getProperty (valueKey);
+            const auto newState = event.object->getProperty (valueKey());
 
             if (! newState.isBool())
                 return std::nullopt;
@@ -170,21 +170,21 @@ struct WebToggleButtonRelayEvents
             return ToggleStateChanged { newState };
         }
 
-        static inline const Identifier eventId  { "valueChanged" };
-        static inline const Identifier valueKey { "value" };
+        static const Identifier& eventId() { static const Identifier id { "valueChanged" }; return id; }
+        static const Identifier& valueKey() { static const Identifier id { "value" }; return id; }
     };
 
     struct InitialUpdateRequested
     {
         static std::optional<InitialUpdateRequested> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
             return InitialUpdateRequested{};
         }
 
-        static inline const Identifier eventId { "requestInitialUpdate" };
+        static const Identifier& eventId() { static const Identifier id { "requestInitialUpdate" }; return id; }
     };
 };
 
@@ -205,7 +205,7 @@ struct WebComboBoxRelayEvents
             if (dynObj == nullptr)
                 return std::nullopt;
 
-            const auto eventTypeProp = dynObj->getProperty (eventTypeKey);
+            const auto eventTypeProp = dynObj->getProperty (eventTypeKey());
 
             if (! eventTypeProp.isString())
                 return std::nullopt;
@@ -213,7 +213,7 @@ struct WebComboBoxRelayEvents
             return Event { eventTypeProp.toString(), dynObj };
         }
 
-        static inline const Identifier eventTypeKey { "eventType" };
+        static const Identifier& eventTypeKey() { static const Identifier id { "eventType" }; return id; }
     };
 
     struct ValueChanged
@@ -222,10 +222,10 @@ struct WebComboBoxRelayEvents
 
         static std::optional<ValueChanged> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
-            const auto newValue = event.object->getProperty (valueKey);
+            const auto newValue = event.object->getProperty (valueKey());
 
             if (! (newValue.isInt() || newValue.isInt64() || newValue.isDouble()))
                 return std::nullopt;
@@ -233,21 +233,21 @@ struct WebComboBoxRelayEvents
             return ValueChanged { (float) newValue };
         }
 
-        static inline const Identifier eventId  { "valueChanged" };
-        static inline const Identifier valueKey { "value" };
+        static const Identifier& eventId() { static const Identifier id { "valueChanged" }; return id; }
+        static const Identifier& valueKey() { static const Identifier id { "value" }; return id; }
     };
 
     struct InitialUpdateRequested
     {
         static std::optional<InitialUpdateRequested> extract (const Event& event)
         {
-            if (event.eventType != eventId.toString())
+            if (event.eventType != eventId().toString())
                 return std::nullopt;
 
             return InitialUpdateRequested{};
         }
 
-        static inline const Identifier eventId { "requestInitialUpdate" };
+        static const Identifier& eventId() { static const Identifier id { "requestInitialUpdate" }; return id; }
     };
 };
 
