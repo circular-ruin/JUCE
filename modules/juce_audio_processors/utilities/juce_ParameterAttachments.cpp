@@ -296,7 +296,7 @@ void WebSliderParameterAttachment::sendInitialUpdate()
 {
     const auto range = parameter.getNormalisableRange();
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey, "propertiesChanged");
+    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey(), "propertiesChanged");
     object->setProperty ("start", range.start);
     object->setProperty ("end", range.end);
     object->setProperty ("skew", range.skew);
@@ -352,7 +352,7 @@ WebToggleButtonParameterAttachment::~WebToggleButtonParameterAttachment()
 void WebToggleButtonParameterAttachment::sendInitialUpdate()
 {
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey, "propertiesChanged");
+    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey(), "propertiesChanged");
     object->setProperty ("name", parameter.getName (100));
     object->setProperty ("parameterIndex", parameter.getParameterIndex());
     relay.emitEvent (object.get());
@@ -401,7 +401,7 @@ WebComboBoxParameterAttachment::~WebComboBoxParameterAttachment()
 void WebComboBoxParameterAttachment::sendInitialUpdate()
 {
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey, "propertiesChanged");
+    object->setProperty (detail::WebSliderRelayEvents::Event::eventTypeKey(), "propertiesChanged");
     object->setProperty ("name", parameter.getName (100));
     object->setProperty ("parameterIndex", parameter.getParameterIndex());
 

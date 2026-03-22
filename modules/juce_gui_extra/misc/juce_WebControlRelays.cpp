@@ -47,9 +47,9 @@ void WebSliderRelay::setValue (float newValue)
     using namespace detail;
 
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (WebSliderRelayEvents::Event::eventTypeKey,
-                         WebSliderRelayEvents::ValueChanged::eventId.toString());
-    object->setProperty (WebSliderRelayEvents::ValueChanged::newValueKey, newValue);
+    object->setProperty (WebSliderRelayEvents::Event::eventTypeKey(),
+                         WebSliderRelayEvents::ValueChanged::eventId().toString());
+    object->setProperty (WebSliderRelayEvents::ValueChanged::newValueKey(), newValue);
 
     value = newValue;
     emitEvent (object.get());
@@ -144,9 +144,9 @@ void WebToggleButtonRelay::setToggleState (bool newState)
     using namespace detail;
 
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (WebToggleButtonRelayEvents::Event::eventTypeKey,
-                         WebToggleButtonRelayEvents::ToggleStateChanged::eventId.toString());
-    object->setProperty (WebToggleButtonRelayEvents::ToggleStateChanged::valueKey, newState);
+    object->setProperty (WebToggleButtonRelayEvents::Event::eventTypeKey(),
+                         WebToggleButtonRelayEvents::ToggleStateChanged::eventId().toString());
+    object->setProperty (WebToggleButtonRelayEvents::ToggleStateChanged::valueKey(), newState);
 
     emitEvent (object.get());
 }
@@ -221,9 +221,9 @@ void WebComboBoxRelay::setValue (float newValue)
     using namespace detail;
 
     DynamicObject::Ptr object { new DynamicObject };
-    object->setProperty (WebComboBoxRelayEvents::Event::eventTypeKey,
-                         WebComboBoxRelayEvents::ValueChanged::eventId.toString());
-    object->setProperty (WebComboBoxRelayEvents::ValueChanged::valueKey, newValue);
+    object->setProperty (WebComboBoxRelayEvents::Event::eventTypeKey(),
+                         WebComboBoxRelayEvents::ValueChanged::eventId().toString());
+    object->setProperty (WebComboBoxRelayEvents::ValueChanged::valueKey(), newValue);
 
     emitEvent (object.get());
 }
