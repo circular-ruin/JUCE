@@ -39,7 +39,7 @@ namespace ComponentBuilderHelpers
 {
     static String getStateId (const ValueTree& state)
     {
-        return state [ComponentBuilder::idProperty].toString();
+        return state [ComponentBuilder::idProperty()].toString();
     }
 
     static Component* removeComponentWithID (OwnedArray<Component>& components, const String& compId)
@@ -102,7 +102,7 @@ namespace ComponentBuilderHelpers
 }
 
 //==============================================================================
-const Identifier ComponentBuilder::idProperty ("id");
+const Identifier& ComponentBuilder::idProperty() { static const Identifier id ("id"); return id; }
 
 ComponentBuilder::ComponentBuilder()
     : imageProvider (nullptr)

@@ -185,7 +185,9 @@ public:
         void applyTo (MarkerList& markerList);
         void readFrom (const MarkerList& markerList, UndoManager* undoManager);
 
-        static const Identifier markerTag, nameProperty, posProperty;
+        static const Identifier& markerTag();
+        static const Identifier& nameProperty();
+        static const Identifier& posProperty();
 
     private:
         ValueTree state;
