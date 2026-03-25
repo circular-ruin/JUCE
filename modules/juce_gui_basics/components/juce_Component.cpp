@@ -2643,16 +2643,16 @@ Component* Component::findKeyboardFocusContainer() const
     return findContainer (this, &Component::isKeyboardFocusContainer);
 }
 
-static const Identifier explicitFocusOrderId ("_jexfo");
+static const Identifier& explicitFocusOrderId() { static const Identifier id ("_jexfo"); return id; }
 
 int Component::getExplicitFocusOrder() const
 {
-    return properties [explicitFocusOrderId];
+    return properties [explicitFocusOrderId()];
 }
 
 void Component::setExplicitFocusOrder (int newFocusOrderIndex)
 {
-    properties.set (explicitFocusOrderId, newFocusOrderIndex);
+    properties.set (explicitFocusOrderId(), newFocusOrderIndex);
 }
 
 std::unique_ptr<ComponentTraverser> Component::createFocusTraverser()

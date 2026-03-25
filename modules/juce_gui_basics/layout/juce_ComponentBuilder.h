@@ -233,7 +233,7 @@ public:
     /** An identifier for the property of the ValueTrees that is used to store a unique ID
         for that component.
     */
-    static const Identifier idProperty;
+    static const Identifier& idProperty();
 
 private:
     //==============================================================================

@@ -35,8 +35,8 @@
 namespace juce
 {
 
-static const Identifier tableColumnProperty { "_tableColumnId" };
-static const Identifier tableAccessiblePlaceholderProperty { "_accessiblePlaceholder" };
+static const Identifier& tableColumnProperty()              { static const Identifier id { "_tableColumnId" };        return id; }
+static const Identifier& tableAccessiblePlaceholderProperty() { static const Identifier id { "_accessiblePlaceholder" }; return id; }
 
 class TableListBox::RowComp final : public TooltipClient,
                                     public ComponentWithListRowMouseBehaviours<RowComp>
@@ -60,7 +60,7 @@ public:
 
             for (int i = 0; i < numColumns; ++i)
             {
-                if (columnComponents[(size_t) i]->getProperties().contains (tableAccessiblePlaceholderProperty))
+                if (columnComponents[(size_t) i]->getProperties().contains (tableAccessiblePlaceholderProperty()))
                 {
                     auto columnRect = headerComp.getColumnPosition (i).withHeight (getHeight());
 
@@ -106,10 +106,10 @@ public:
             {
                 auto columnId = owner.getHeader().getColumnIdOfIndex (i, true);
                 auto originalComp = std::move (columnComponents[(size_t) i]);
-                auto oldCustomComp = originalComp != nullptr && ! originalComp->getProperties().contains (tableAccessiblePlaceholderProperty)
+                auto oldCustomComp = originalComp != nullptr && ! originalComp->getProperties().contains (tableAccessiblePlaceholderProperty())
                                    ? std::move (originalComp)
                                    : std::unique_ptr<Component, ComponentDeleter> { nullptr, deleter };
-                auto compToRefresh = oldCustomComp != nullptr && columnId == static_cast<int> (oldCustomComp->getProperties()[tableColumnProperty])
+                auto compToRefresh = oldCustomComp != nullptr && columnId == static_cast<int> (oldCustomComp->getProperties()[tableColumnProperty()])
                                    ? std::move (oldCustomComp)
                                    : std::unique_ptr<Component, ComponentDeleter> { nullptr, deleter };
 
@@ -133,7 +133,7 @@ public:
                     // Create a new placeholder component to use
                     std::unique_ptr<Component, ComponentDeleter> comp { new Component, deleter };
                     comp->setInterceptsMouseClicks (false, false);
-                    comp->getProperties().set (tableAccessiblePlaceholderProperty, true);
+                    comp->getProperties().set (tableAccessiblePlaceholderProperty(), true);
                     return comp;
                 }();
 
@@ -143,7 +143,7 @@ public:
                 // accessibility elements on each row must match the number of header accessibility
                 // elements.
                 columnComp->setFocusContainerType (FocusContainerType::focusContainer);
-                columnComp->getProperties().set (tableColumnProperty, columnId);
+                columnComp->getProperties().set (tableColumnProperty(), columnId);
                 addAndMakeVisible (*columnComp);
 
                 columnComponents[(size_t) i] = std::move (columnComp);

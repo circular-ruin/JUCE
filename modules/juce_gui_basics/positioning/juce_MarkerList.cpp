@@ -195,9 +195,9 @@ bool MarkerList::Marker::operator!= (const Marker& other) const noexcept
 }
 
 //==============================================================================
-const Identifier MarkerList::ValueTreeWrapper::markerTag ("Marker");
-const Identifier MarkerList::ValueTreeWrapper::nameProperty ("name");
-const Identifier MarkerList::ValueTreeWrapper::posProperty ("position");
+const Identifier& MarkerList::ValueTreeWrapper::markerTag()    { static const Identifier id ("Marker");   return id; }
+const Identifier& MarkerList::ValueTreeWrapper::nameProperty() { static const Identifier id ("name");     return id; }
+const Identifier& MarkerList::ValueTreeWrapper::posProperty()  { static const Identifier id ("position"); return id; }
 
 MarkerList::ValueTreeWrapper::ValueTreeWrapper (const ValueTree& state_)
     : state (state_)
@@ -216,7 +216,7 @@ ValueTree MarkerList::ValueTreeWrapper::getMarkerState (int index) const
 
 ValueTree MarkerList::ValueTreeWrapper::getMarkerState (const String& name) const
 {
-    return state.getChildWithProperty (nameProperty, name);
+    return state.getChildWithProperty (nameProperty(), name);
 }
 
 bool MarkerList::ValueTreeWrapper::containsMarker (const ValueTree& marker) const
@@ -228,22 +228,22 @@ MarkerList::Marker MarkerList::ValueTreeWrapper::getMarker (const ValueTree& mar
 {
     jassert (containsMarker (marker));
 
-    return MarkerList::Marker (marker [nameProperty], RelativeCoordinate (marker [posProperty].toString()));
+    return MarkerList::Marker (marker [nameProperty()], RelativeCoordinate (marker [posProperty()].toString()));
 }
 
 void MarkerList::ValueTreeWrapper::setMarker (const MarkerList::Marker& m, UndoManager* undoManager)
 {
-    ValueTree marker (state.getChildWithProperty (nameProperty, m.name));
+    ValueTree marker (state.getChildWithProperty (nameProperty(), m.name));
 
     if (marker.isValid())
     {
-        marker.setProperty (posProperty, m.position.toString(), undoManager);
+        marker.setProperty (posProperty(), m.position.toString(), undoManager);
     }
     else
     {
-        marker = ValueTree (markerTag);
-        marker.setProperty (nameProperty, m.name, nullptr);
-        marker.setProperty (posProperty, m.position.toString(), nullptr);
+        marker = ValueTree (markerTag());
+        marker.setProperty (nameProperty(), m.name, nullptr);
+        marker.setProperty (posProperty(), m.position.toString(), nullptr);
         state.appendChild (marker, undoManager);
     }
 }
@@ -272,8 +272,8 @@ void MarkerList::ValueTreeWrapper::applyTo (MarkerList& markerList)
     for (int i = 0; i < numMarkers; ++i)
     {
         const ValueTree marker (state.getChild (i));
-        const String name (marker [nameProperty].toString());
-        markerList.setMarker (name, RelativeCoordinate (marker [posProperty].toString()));
+        const String name (marker [nameProperty()].toString());
+        markerList.setMarker (name, RelativeCoordinate (marker [posProperty()].toString()));
         updatedMarkers.add (name);
     }
 

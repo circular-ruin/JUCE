@@ -235,8 +235,8 @@ struct NativeEvents
                      named ("resultId", item.resultId));
         }
 
-        static inline const Identifier eventId     { "__juce__invoke" };
-        static inline const Identifier completeId  { "__juce__complete" };
+        static const Identifier& eventId()    { static const Identifier id { "__juce__invoke" };   return id; }
+        static const Identifier& completeId() { static const Identifier id { "__juce__complete" }; return id; }
     };
 };
 
@@ -257,7 +257,7 @@ public:
             return initialOptions;
 
         auto options = initialOptions.withNativeIntegrationEnabled()
-                                     .withEventListener (NativeEvents::Invoke::eventId,
+                                     .withEventListener (NativeEvents::Invoke::eventId(),
                                                          [this] (const auto& object)
                                                          {
                                                              handleNativeFunctionCall (object);
@@ -343,7 +343,7 @@ private:
         eventObject->setProperty ("result", object);
 
         jassert (owner.isVisible());
-        owner.emitEventIfBrowserIsVisible (NativeEvents::Invoke::completeId, eventObject.get());
+        owner.emitEventIfBrowserIsVisible (NativeEvents::Invoke::completeId(), eventObject.get());
     }
 
     WebBrowserComponent& owner;
