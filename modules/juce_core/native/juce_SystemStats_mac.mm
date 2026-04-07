@@ -348,11 +348,15 @@ private:
     double highResTimerToMillisecRatio;
 };
 
-static HiResCounterInfo hiResCounterInfo;
+static HiResCounterInfo& getHiResCounterInfo()
+{
+    static HiResCounterInfo info;
+    return info;
+}
 
-uint32 juce_millisecondsSinceStartup() noexcept         { return hiResCounterInfo.millisecondsSinceStartup(); }
-double Time::getMillisecondCounterHiRes() noexcept      { return hiResCounterInfo.getMillisecondCounterHiRes(); }
-int64  Time::getHighResolutionTicksPerSecond() noexcept { return hiResCounterInfo.highResTimerFrequency; }
+uint32 juce_millisecondsSinceStartup() noexcept         { return getHiResCounterInfo().millisecondsSinceStartup(); }
+double Time::getMillisecondCounterHiRes() noexcept      { return getHiResCounterInfo().getMillisecondCounterHiRes(); }
+int64  Time::getHighResolutionTicksPerSecond() noexcept { return getHiResCounterInfo().highResTimerFrequency; }
 int64  Time::getHighResolutionTicks() noexcept          { return (int64) mach_absolute_time(); }
 
 bool Time::setSystemTimeToThisTime() const

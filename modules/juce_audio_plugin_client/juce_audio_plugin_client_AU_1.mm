@@ -108,7 +108,17 @@ constexpr auto pluginWantsMidiInput =
 //==============================================================================
 using namespace juce;
 
-static Array<void*> activePlugins, activeUIs;
+static Array<void*>& getActivePlugins()
+{
+    static Array<void*> a;
+    return a;
+}
+
+static Array<void*>& getActiveUIs()
+{
+    static Array<void*> a;
+    return a;
+}
 
 static const AudioUnitPropertyID juceFilterObjectPropertyID = 0x1a45ffe9;
 
@@ -189,7 +199,7 @@ public:
 
         addParameters();
 
-        activePlugins.add (this);
+        getActivePlugins().add (this);
 
         zerostruct (auEvent);
         auEvent.mArgument.mParameter.mAudioUnit = GetComponentInstance();
@@ -213,8 +223,8 @@ public:
         juceFilter = nullptr;
         clearPresetsArray();
 
-        jassert (activePlugins.contains (this));
-        activePlugins.removeFirstMatchingValue (this);
+        jassert (getActivePlugins().contains (this));
+        getActivePlugins().removeFirstMatchingValue (this);
     }
 
     //==============================================================================
@@ -1709,7 +1719,7 @@ public:
                                                      selector: @selector (applicationWillTerminate:)
                                                          name: NSApplicationWillTerminateNotification
                                                        object: nil];
-            activeUIs.add (view);
+            getActiveUIs().add (view);
 
             editorCompHolder->addToDesktop (detail::PluginUtilities::getDesktopFlags (editor), view);
             editorCompHolder->setVisible (true);
@@ -1801,9 +1811,9 @@ public:
 
     void deleteActiveEditors()
     {
-        for (int i = activeUIs.size(); --i >= 0;)
+        for (int i = getActiveUIs().size(); --i >= 0;)
         {
-            id ui = (id) activeUIs.getUnchecked (i);
+            id ui = (id) getActiveUIs().getUnchecked (i);
 
             if (JuceUIViewClass::getAU (ui) == this)
                 JuceUIViewClass::deleteEditor (ui);
@@ -1821,7 +1831,7 @@ public:
 
             addMethod (@selector (dealloc), [] (id self, SEL)
             {
-                if (activeUIs.contains (self))
+                if (getActiveUIs().contains (self))
                     shutdown (self);
 
                 sendSuperclassMessage<void> (self, @selector (dealloc));
@@ -1862,7 +1872,7 @@ public:
             if (editorComp != nullptr)
             {
                 if (editorComp->getChildComponent (0) != nullptr
-                     && activePlugins.contains (getAU (self))) // plugin may have been deleted before the UI
+                     && getActivePlugins().contains (getAU (self))) // plugin may have been deleted before the UI
                 {
                     AudioProcessor* const filter = getIvar<AudioProcessor*> (self, "filter");
                     filter->editorBeingDeleted ((AudioProcessorEditor*) editorComp->getChildComponent (0));
@@ -1886,10 +1896,10 @@ public:
             [[NSNotificationCenter defaultCenter] removeObserver: self];
             deleteEditor (self);
 
-            jassert (activeUIs.contains (self));
-            activeUIs.removeFirstMatchingValue (self);
+            jassert (getActiveUIs().contains (self));
+            getActiveUIs().removeFirstMatchingValue (self);
 
-            if (activePlugins.size() + activeUIs.size() == 0)
+            if (getActivePlugins().size() + getActiveUIs().size() == 0)
             {
                 // there's some kind of component currently modal, but the host
                 // is trying to delete our plugin

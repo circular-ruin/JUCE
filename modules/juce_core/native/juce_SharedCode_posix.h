@@ -104,7 +104,11 @@ struct MaxNumFileHandlesInitialiser
     }
 };
 
-static MaxNumFileHandlesInitialiser maxNumFileHandlesInitialiser;
+static void ensureMaxFileHandlesSet()
+{
+    static MaxNumFileHandlesInitialiser init;
+    (void) init;
+}
 #endif
 
 //==============================================================================
@@ -126,6 +130,8 @@ StringRef File::getSeparatorString()   { return "/"; }
 //==============================================================================
 File File::getCurrentWorkingDirectory()
 {
+    ensureMaxFileHandlesSet();
+
     HeapBlock<char> heapBuffer;
 
     char localBuffer[1024];
