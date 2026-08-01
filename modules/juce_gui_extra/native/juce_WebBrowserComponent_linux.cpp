@@ -431,11 +431,40 @@ private:
         const char* soupLib;
     };
 
+    // When JUCE_WEBKIT_BUNDLE_DIR is set, resolve a library from that directory
+    // by absolute path; otherwise fall back to the bare soname and the system
+    // loader search path. This lets a plugin ship a bundled WebKitGTK extracted
+    // to a runtime-decided cache dir (which RUNPATH cannot express). The env var
+    // is set once by the plugin before any WebBrowserComponent is created and is
+    // inherited by the webview child across fork()+execv(), so both the
+    // host-process availability probe and the child load the same libraries.
+    // Unset -> byte-for-byte the original behaviour.
+    static String resolveLib (const char* soname)
+    {
+        const auto dir = SystemStats::getEnvironmentVariable ("JUCE_WEBKIT_BUNDLE_DIR", {});
+
+        if (dir.isNotEmpty())
+        {
+            const auto f = File (dir).getChildFile (soname);
+
+            if (f.existsAsFile())
+                return f.getFullPathName();
+        }
+
+        return String (soname);
+    }
+
     bool openWebKitAndDependencyLibraries (const WebKitAndDependencyLibraryNames& names)
     {
-        if (   (webkitLib = DylibHandle (names.webkitLib, RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE))
-            && (jsLib = DylibHandle (names.jsLib))
-            && (soupLib = DylibHandle (names.soupLib)))
+        // resolveLib returns a String, and DylibHandle takes a const char*, so the paths
+        // are bound to locals rather than being temporaries inside the condition below.
+        const auto webkitPath = resolveLib (names.webkitLib);
+        const auto jsPath     = resolveLib (names.jsLib);
+        const auto soupPath   = resolveLib (names.soupLib);
+
+        if (   (webkitLib = DylibHandle (webkitPath.toRawUTF8(), RTLD_NOW | RTLD_LOCAL | RTLD_NODELETE))
+            && (jsLib = DylibHandle (jsPath.toRawUTF8()))
+            && (soupLib = DylibHandle (soupPath.toRawUTF8())))
         {
             return true;
         }
@@ -449,8 +478,8 @@ private:
     //==============================================================================
     DylibHandle webkitLib, jsLib, soupLib;
 
-    DylibHandle gtkLib    { "libgtk-3.so" },
-                glib      { "libglib-2.0.so" };
+    DylibHandle gtkLib    { resolveLib ("libgtk-3.so").toRawUTF8() },
+                glib      { resolveLib ("libglib-2.0.so").toRawUTF8() };
 
     const bool webKitIsAvailable =    (   openWebKitAndDependencyLibraries ({ "libwebkit2gtk-4.1.so",
                                                                               "libjavascriptcoregtk-4.1.so",
