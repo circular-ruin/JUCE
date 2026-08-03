@@ -393,9 +393,34 @@ private:
         const char* soupLib;
     };
 
+    // When JUCE_WEBKIT_BUNDLE_DIR is set, resolve a library from that directory
+    // by absolute path; otherwise fall back to the bare soname and the system
+    // loader search path. This lets a plugin ship a bundled WebKitGTK extracted
+    // to a runtime-decided cache dir (which RUNPATH cannot express). The env var
+    // is set once by the plugin before any WebBrowserComponent is created and is
+    // inherited by the webview child across fork()+execv(), so both the
+    // host-process availability probe and the child load the same libraries.
+    // Unset -> byte-for-byte the original behaviour.
+    static String resolveLib (const char* soname)
+    {
+        const auto dir = SystemStats::getEnvironmentVariable ("JUCE_WEBKIT_BUNDLE_DIR", {});
+
+        if (dir.isNotEmpty())
+        {
+            const auto f = File (dir).getChildFile (soname);
+
+            if (f.existsAsFile())
+                return f.getFullPathName();
+        }
+
+        return String (soname);
+    }
+
     bool openWebKitAndDependencyLibraries (const WebKitAndDependencyLibraryNames& names)
     {
-        if (webkitLib.open (names.webkitLib) && jsLib.open (names.jsLib) && soupLib.open (names.soupLib))
+        if (webkitLib.open (resolveLib (names.webkitLib))
+            && jsLib.open (resolveLib (names.jsLib))
+            && soupLib.open (resolveLib (names.soupLib)))
             return true;
 
         for (auto* l : { &webkitLib, &jsLib, &soupLib })
@@ -407,8 +432,8 @@ private:
     //==============================================================================
     DynamicLibrary webkitLib, jsLib, soupLib;
 
-    DynamicLibrary gtkLib    { "libgtk-3.so" },
-                   glib      { "libglib-2.0.so" };
+    DynamicLibrary gtkLib    { resolveLib ("libgtk-3.so") },
+                   glib      { resolveLib ("libglib-2.0.so") };
 
     const bool webKitIsAvailable =    (   openWebKitAndDependencyLibraries ({ "libwebkit2gtk-4.1.so",
                                                                               "libjavascriptcoregtk-4.1.so",
