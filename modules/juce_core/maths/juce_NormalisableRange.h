@@ -193,7 +193,32 @@ public:
         if (interval > ValueType())
             v = start + interval * std::floor ((v - start) / interval + static_cast<ValueType> (0.5));
 
-        return (v <= start || end <= start) ? start : (v >= end ? end : v);
+        // Absorb the rounding of the multiply-add above before testing against the
+        // endpoint.
+        //
+        // Whether `interval * steps` lands exactly on `end - start` at the top of the
+        // range depends on whether the compiler contracts that expression into an FMA.
+        // Unfused, the product is rounded on its own and the sum comes out exactly
+        // `end`; fused, the unrounded product can leave v a fraction of an ulp short,
+        // which then falls through the `v >= end` test below — so a parameter at its
+        // maximum reports very slightly less than its maximum, and displays as (say)
+        // "-0.00" rather than "0.00". Both are legal codegen: MSVC contracts under
+        // /arch:AVX2, clang and gcc contract by default. An endpoint cannot be left
+        // exact by luck of rounding.
+        //
+        // The slack is scaled to the range, not to the interval, so it is a few ulps of
+        // the arithmetic being corrected rather than a fraction of a step: a grid point
+        // genuinely distinct from `end` sits at least one interval away, and a range
+        // whose interval is within a few ulps of its own span cannot represent its grid
+        // in ValueType to begin with. So this cannot swallow a legal value.
+        //
+        // The bottom of the range needs no equivalent: there the step count is zero, the
+        // product is an exact zero whether fused or not, and the sum is exactly `start`.
+        const auto endSlack = std::abs (end - start)
+                            * std::numeric_limits<ValueType>::epsilon()
+                            * static_cast<ValueType> (4);
+
+        return (v <= start || end <= start) ? start : (v >= end - endSlack ? end : v);
     }
 
     /** Returns the extent of the normalisable range. */
